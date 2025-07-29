@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistem Rekap Potongan Gaji</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f7fa;
+      color: #2c3e50;
+      line-height: 1.6;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+      color: white;
+      padding: 2rem 0;
+      text-align: center;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .logo {
+      width: 150px;
+      height: 150px;
+      object-fit: contain;
+   
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .header p {
+      opacity: 0.9;
+      font-size: 1rem;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: -2rem auto 2rem;
+      padding: 0 1rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Card */
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      margin-bottom: 2rem;
+      overflow: hidden;
+      border: 1px solid #e1e8ed;
+    }
+
+    .card-header {
+      background: #f8f9fa;
+      padding: 1.5rem;
+      border-bottom: 1px solid #e1e8ed;
+    }
+
+    .card-header h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #2c3e50;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card-body {
+      padding: 2rem;
+    }
+
+    /* Login Form */
+    .login-form {
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: #555;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 2px solid #e1e8ed;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: #fff;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: #3498db;
+      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      justify-content: center;
+    }
+
+    .btn-primary {
+      background: #3498db;
+      color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #2980b9;
+      transform: translateY(-1px);
+    }
+
+    .btn-danger {
+      background: #e74c3c;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #c0392b;
+    }
+
+    .btn:disabled {
+      background: #bdc3c7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* User Info */
+    .user-info {
+      background: linear-gradient(135deg, #3498db, #2980b9);
+      color: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .user-info h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    /* Summary Grid */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .summary-item {
+      background: #f8f9fa;
+      padding: 1.5rem;
+      border-radius: 8px;
+      border-left: 4px solid #3498db;
+      transition: transform 0.2s ease;
+    }
+
+    .summary-item:hover {
+      transform: translateY(-2px);
+    }
+
+    .summary-label {
+      font-size: 0.875rem;
+      color: #7f8c8d;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .summary-value {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #2c3e50;
+    }
+
+    .summary-value.text-success {
+      color: #27ae60;
+    }
+
+    .summary-value.text-warning {
+      color: #f39c12;
+    }
+
+    .summary-value.text-danger {
+      color: #e74c3c;
+    }
+
+    /* Salary Summary */
+    .salary-summary {
+      background: linear-gradient(135deg, #27ae60, #2ecc71);
+      color: white;
+      padding: 2rem;
+      border-radius: 12px;
+      text-align: center;
+      margin: 2rem 0;
+    }
+
+    .salary-summary h3 {
+      font-size: 1rem;
+      opacity: 0.9;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    .salary-amount {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+    }
+
+    .salary-note {
+      font-size: 0.875rem;
+      opacity: 0.8;
+    }
+
+    /* Table */
+    .table-container {
+      overflow-x: auto;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    .table th,
+    .table td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid #e1e8ed;
+    }
+
+    .table th {
+      background: #f8f9fa;
+      font-weight: 600;
+      color: #2c3e50;
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .table tbody tr:hover {
+      background: #f8f9fa;
+    }
+
+    /* Status Badges */
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-success {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .badge-warning {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .badge-danger {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    /* Messages */
+    .alert {
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+      border: 1px solid transparent;
+    }
+
+    .alert-success {
+      color: #155724;
+      background: #d4edda;
+      border-color: #c3e6cb;
+    }
+
+    .alert-danger {
+      color: #721c24;
+      background: #f8d7da;
+      border-color: #f5c6cb;
+    }
+
+    .alert-info {
+      color: #0c5460;
+      background: #d1ecf1;
+      border-color: #bee5eb;
+    }
+
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      color: #7f8c8d;
+    }
+
+    .loading i {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        margin-top: -1rem;
+        padding: 0 0.5rem;
+      }
+
+      .header-content {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .logo {
+        width: 50px;
+        height: 50px;
+      }
+
+      .header h1 {
+        font-size: 1.5rem;
+      }
+
+      .card-body {
+        padding: 1rem;
+      }
+
+      .user-info {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+
+      .salary-amount {
+        font-size: 2rem;
+      }
+
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .table th,
+      .table td {
+        padding: 0.5rem;
+        font-size: 0.875rem;
+      }
+    }
+
+    /* Animations */
+    .fade-in {
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="header-content">
+      <img src="logo.png" alt="Logo PT. Teknologi Maju" class="logo">
+      <h1>PT. Teknologi Maju</h1>
+    </div>
+    <p>Sistem Rekap Potongan Gaji Karyawan</p>
+  </div>
+
+  <div class="container">
+    <!-- Login Section -->
+    <div id="loginSection" class="card fade-in">
+      <div class="card-header">
+        <h2><i class="fas fa-sign-in-alt"></i> Login Karyawan</h2>
+      </div>
+      <div class="card-body">
+        <div class="login-form">
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" class="form-control" placeholder="Masukkan username" value="user">
+          </div>
+          <div class="form-group">
+            <label for="password">Password (NIM)</label>
+            <input type="password" id="password" class="form-control" placeholder="Masukkan NIM Anda">
+          </div>
+          <div class="form-group">
+            <button class="btn btn-primary" onclick="login()" id="loginBtn" style="width: 100%;">
+              <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+          </div>
+          <div id="loginMessage"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data Section -->
+    <div id="dataSection" style="display: none;">
+      <!-- User Info -->
+      <div class="user-info fade-in">
+        <div>
+          <h3 id="welcomeMessage">Selamat datang</h3>
+          <p>Periode: Juli 2025</p>
+        </div>
+        <button onclick="logout()" class="btn btn-danger">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
+
+      <!-- Summary Card -->
+      <div class="card fade-in">
+        <div class="card-header">
+          <h2><i class="fas fa-chart-bar"></i> Ringkasan Gaji</h2>
+        </div>
+        <div class="card-body">
+          <div class="summary-grid">
+            <div class="summary-item">
+              <div class="summary-label"><i class="fas fa-user"></i> Nama Karyawan</div>
+              <div class="summary-value" id="summaryNama">-</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-label"><i class="fas fa-id-card"></i> NIM</div>
+              <div class="summary-value" id="summaryNim">-</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-label"><i class="fas fa-money-bill"></i> Gaji Harian</div>
+              <div class="summary-value text-success">Rp 100.000</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-label"><i class="fas fa-calendar-day"></i> Total Hari Kerja</div>
+              <div class="summary-value" id="totalHari">-</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-label"><i class="fas fa-clock"></i> Keterlambatan</div>
+              <div class="summary-value text-warning" id="jumlahTerlambat">-</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-label"><i class="fas fa-running"></i> Pulang Awal</div>
+              <div class="summary-value text-warning" id="jumlahPulangAwal">-</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-label"><i class="fas fa-cut"></i> Total Potongan</div>
+              <div class="summary-value text-danger" id="totalPotongan">-</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-label"><i class="fas fa-calculator"></i> Gaji Kotor</div>
+              <div class="summary-value" id="gajiKotor">-</div>
+            </div>
+          </div>
+          
+          <div class="salary-summary">
+            <h3><i class="fas fa-wallet"></i> GAJI BERSIH</h3>
+            <div class="salary-amount" id="gajiBersih">Rp 0</div>
+            <div class="salary-note">Setelah dipotong pelanggaran</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detail Table -->
+      <div class="card fade-in">
+        <div class="card-header">
+          <h2><i class="fas fa-table"></i> Detail Absensi</h2>
+        </div>
+        <div class="card-body">
+          <div class="table-container">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th><i class="fas fa-calendar"></i> Tanggal</th>
+                  <th><i class="fas fa-info-circle"></i> Status</th>
+                  <th><i class="fas fa-clock"></i> Waktu</th>
+                  <th><i class="fas fa-money-bill-wave"></i> Potongan</th>
+                </tr>
+              </thead>
+              <tbody id="absen-table">
+                <tr>
+                  <td colspan="4" class="loading">
+                    <i class="fas fa-spinner"></i>
+                    <div>Memuat data...</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    // Konfigurasi Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyCCPN5q2MfJVNbnrTd8SHR1AIakgt3lk0A",
+      authDomain: "absensi-774a2.firebaseapp.com",
+      databaseURL: "https://absensi-774a2-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "absensi-774a2",
+      storageBucket: "absensi-774a2.firebasestorage.app",
+      messagingSenderId: "573646395793",
+      appId: "1:573646395793:web:a1dea099d4700a20656230"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const dbRef = ref(db);
+    const GAJI_HARIAN = 100000;
+    const POTONGAN_PER_PELANGGARAN = GAJI_HARIAN / 4; // 25000
+
+    let currentUserNim = null;
+    let currentUserNama = null;
+
+    // Fungsi Login
+    async function login() {
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const loginMessage = document.getElementById("loginMessage");
+      const loginBtn = document.getElementById("loginBtn");
+
+      // Reset message
+      loginMessage.innerHTML = "";
+
+      // Validasi input
+      if (!username || !password) {
+        loginMessage.innerHTML = '<div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> Username dan Password harus diisi!</div>';
+        return;
+      }
+
+      if (username !== "user") {
+        loginMessage.innerHTML = '<div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> Username harus "user"!</div>';
+        return;
+      }
+
+      // Show loading
+      loginBtn.disabled = true;
+      loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memverifikasi...';
+      loginMessage.innerHTML = '<div class="alert alert-info"><i class="fas fa-info-circle"></i> Memverifikasi login...</div>';
+
+      try {
+        // Cek apakah NIM ada di database pengguna
+        const penggunaSnapshot = await get(child(dbRef, `pengguna`));
+        
+        if (!penggunaSnapshot.exists()) {
+          loginMessage.innerHTML = '<div class="alert alert-danger"><i class="fas fa-database"></i> Database pengguna tidak ditemukan!</div>';
+          return;
+        }
+
+        const allPengguna = penggunaSnapshot.val();
+        let userData = null;
+        
+        // Cari user berdasarkan NIM
+        Object.values(allPengguna).forEach(pengguna => {
+          if (pengguna.nim === password) {
+            userData = pengguna;
+          }
+        });
+
+        if (!userData) {
+          loginMessage.innerHTML = '<div class="alert alert-danger"><i class="fas fa-user-times"></i> NIM tidak ditemukan dalam database!</div>';
+          return;
+        }
+
+        currentUserNim = password;
+        currentUserNama = userData.nama;
+
+        // Login berhasil
+        loginMessage.innerHTML = '<div class="alert alert-success"><i class="fas fa-check-circle"></i> Login berhasil!</div>';
+        setTimeout(() => {
+          document.getElementById("loginSection").style.display = "none";
+          document.getElementById("dataSection").style.display = "block";
+          document.getElementById("welcomeMessage").innerHTML = `Selamat datang, ${currentUserNama}`;
+          loadUserData();
+        }, 1000);
+
+      } catch (error) {
+        console.error("Login error:", error);
+        loginMessage.innerHTML = '<div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> Terjadi kesalahan saat login. Silakan coba lagi.</div>';
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+      }
+    }
+
+    // Fungsi Logout
+    function logout() {
+      currentUserNim = null;
+      currentUserNama = null;
+      document.getElementById("loginSection").style.display = "block";
+      document.getElementById("dataSection").style.display = "none";
+      document.getElementById("username").value = "user";
+      document.getElementById("password").value = "";
+      document.getElementById("loginMessage").innerHTML = "";
+    }
+
+    // Fungsi Load Data User
+    async function loadUserData() {
+      const tableBody = document.getElementById("absen-table");
+      
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="4" class="loading">
+            <i class="fas fa-spinner fa-spin"></i>
+            <div>Memuat data...</div>
+          </td>
+        </tr>
+      `;
+
+      try {
+        // Ambil data absensi (bisa ditambahkan untuk multiple tanggal)
+        const dates = ["2025-07-23"]; // Bisa diperluas untuk rentang tanggal
+        let allAbsensi = [];
+        let totalTerlambat = 0;
+        let totalPulangAwal = 0;
+        let totalHari = 0;
+
+        for (const date of dates) {
+          const snapshot = await get(child(dbRef, `absensi/${date}`));
+          if (snapshot.exists()) {
+            const absensi = snapshot.val();
+            Object.values(absensi).forEach((item) => {
+              if (item && item.nim === currentUserNim) {
+                allAbsensi.push({...item, tanggal: date});
+                totalHari++;
+                
+                if (item.status && item.status.includes("Terlambat")) {
+                  totalTerlambat++;
+                }
+                if (item.status && item.status.includes("Pulang Awal")) {
+                  totalPulangAwal++;
+                }
+              }
+            });
+          }
+        }
+
+        // Hitung total potongan
+        const totalPotongan = (totalTerlambat + totalPulangAwal) * POTONGAN_PER_PELANGGARAN;
+        const gajiKotor = totalHari * GAJI_HARIAN;
+        const gajiBersih = gajiKotor - totalPotongan;
+
+        // Update summary
+        document.getElementById("summaryNama").textContent = currentUserNama;
+        document.getElementById("summaryNim").textContent = currentUserNim;
+        document.getElementById("totalHari").textContent = totalHari + " hari";
+        document.getElementById("jumlahTerlambat").textContent = totalTerlambat + " kali";
+        document.getElementById("jumlahPulangAwal").textContent = totalPulangAwal + " kali";
+        document.getElementById("totalPotongan").textContent = "Rp " + totalPotongan.toLocaleString("id-ID");
+        document.getElementById("gajiKotor").textContent = "Rp " + gajiKotor.toLocaleString("id-ID");
+        document.getElementById("gajiBersih").textContent = "Rp " + gajiBersih.toLocaleString("id-ID");
+
+        // Update table
+        if (allAbsensi.length > 0) {
+          tableBody.innerHTML = "";
+          allAbsensi.forEach((item) => {
+            const isPotong = item.status && (item.status.includes("Terlambat") || item.status.includes("Pulang Awal"));
+            const potongan = isPotong ? POTONGAN_PER_PELANGGARAN : 0;
+            
+            // Determine status badge class
+            let badgeClass = 'badge-success';
+            if (item.status && item.status.includes("Terlambat")) {
+              badgeClass = 'badge-warning';
+            } else if (item.status && item.status.includes("Pulang Awal")) {
+              badgeClass = 'badge-danger';
+            }
+
+            const row = `
+              <tr>
+                <td>${item.tanggal}</td>
+                <td><span class="badge ${badgeClass}">${item.status || 'Normal'}</span></td>
+                <td>${item.waktu || 'N/A'}</td>
+                <td><strong>Rp ${potongan.toLocaleString("id-ID")}</strong></td>
+              </tr>
+            `;
+            tableBody.innerHTML += row;
+          });
+        } else {
+          tableBody.innerHTML = `
+            <tr>
+              <td colspan="4" style="text-align: center; padding: 2rem; color: #7f8c8d;">
+                <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+                Tidak ada data absensi ditemukan
+              </td>
+            </tr>
+          `;
+        }
+
+      } catch (error) {
+        console.error("Gagal mengambil data:", error);
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="4" style="text-align: center; padding: 2rem; color: #e74c3c;">
+              <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+              Gagal mengambil data dari Firebase
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    // Make functions available globally
+    window.login = login;
+    window.logout = logout;
+
+    // Enter key support for login
+    document.getElementById("password").addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        login();
+      }
+    });
+  </script>
+</body>
+</html>
